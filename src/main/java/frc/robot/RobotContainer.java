@@ -154,6 +154,6 @@ public class RobotContainer {
 
   public Command tagfollower(){
 
-    return new targetFollow(m_robotDrive);
+    return new targetFollow(m_robotDrive,m_rollerSubsystem);
   }
 }
