@@ -16,12 +16,13 @@ public class targetFollow extends Command {
   private final RollerSubsystem rollerSubsystem;
   private int step;
   private final int SCORE_DISTANCE = 20;// limelight ta threshold for being "close enough" to score
-  private final int LOAD_DISTANCE = 3; // distance in m to back up for load station from reef 
+  private final int LOAD_DISTANCE = 2; // distance in m to back up for load station from reef
+  private final int LOAD_Y_OFFSET = 25;// lateral offset to back up to when loading
   private long timer;
 
   private final double ROT_DEADBAND = 0.01;
   private final double XSPEED_DEADBAND = 0.01;
-  private final double YSPEED_DEADBAND = 0.01;
+  private final double YSPEED_DEADBAND = 0.005;
 
   private final int DRIVE_TO_REEF =0;//step 0 in auto
   private final int FINAL_APPROACH = 2;// slow move to reef
@@ -79,14 +80,14 @@ public class targetFollow extends Command {
     switch(step){
       case DRIVE_OFF_START:
       driveSubsystem.drive(0.2, 0, 0, false);
-      if(System.currentTimeMillis()>timer+3500){
+      if(System.currentTimeMillis()>timer+4000){
         step = DRIVE_TO_REEF;
         timer = System.currentTimeMillis();
       }
       break;
 
       case DRIVE_TO_REEF://driving to reef
-      double rot = -tx/100;//25 is the limit view
+      double rot = -targetpose[4]/100;//25 is the limit view
       if (rot < ROT_DEADBAND && rot > -ROT_DEADBAND){
         rot = 0;
       }
@@ -94,13 +95,13 @@ public class targetFollow extends Command {
       if(xSpeed < XSPEED_DEADBAND && xSpeed>-XSPEED_DEADBAND){
         xSpeed = 0;
       }
-      if (xSpeed>0.2) {xSpeed=0.2;}//limit forward speed approaching target
+      if (xSpeed>0.15) {xSpeed=0.15;}//limit forward speed approaching target
       else if (xSpeed<-0.05) {xSpeed=-0.05;}//limit reverse speed adjusting back from target
-      double ySpeed = targetpose[4]/300;//- move right
+      double ySpeed = -tx/50;//- move right
       if(ySpeed< YSPEED_DEADBAND&& ySpeed>-YSPEED_DEADBAND){
         ySpeed = 0;
-      }
-      if (ta<SCORE_DISTANCE/2){ySpeed = 0;}//only move lateral if close to target
+      }else if (ySpeed>0.05){ySpeed=0.05;}//enforce lateral speed limit
+      else if (ySpeed<-0.05){ySpeed=-0.05;}//enforce lateral speed limit
       if (!tv) {xSpeed = 0;rot = -0.1; ySpeed =0;}// what to do if no target is detected
       driveSubsystem.drive(xSpeed, ySpeed, rot, false);
       if(Math.abs(tx)<1&&Math.abs(targetpose[4])<2&&Math.abs(ta)>SCORE_DISTANCE){
@@ -118,6 +119,7 @@ public class targetFollow extends Command {
         step = MOVE_TO_LOAD;// end
         rollerSubsystem.runRoller(0, 0);
         System.out.println("score done");
+        timer = System.currentTimeMillis();
         break;
       }
       break;
@@ -131,7 +133,7 @@ public class targetFollow extends Command {
       break;
 
       case MOVE_TO_LOAD:
-      System.out.println("move 2 load started");
+      //System.out.println("move 2 load started");
       //rot = -tx/100;//25 is the limit view
       rot = -targetpose[4]/100;// align robot angle with normal vector of april tag
       if(rot <ROT_DEADBAND&&rot>-ROT_DEADBAND){rot = 0;}//rotation deadband to avoid twitching?
@@ -142,12 +144,14 @@ public class targetFollow extends Command {
       if (xSpeed>0) {xSpeed=0;}// don't move forward when going to load
       else if (xSpeed<-0.2) {xSpeed=-0.2;}//limit backward speed to -0.2
       //ySpeed = targetpose[4]/300;//- move right
-      ySpeed = (20-tx)/100;//offset the robot to one side
+      ySpeed = (LOAD_Y_OFFSET-tx)/LOAD_Y_OFFSET;//offset the robot to one side
       if(ySpeed <YSPEED_DEADBAND && ySpeed >-YSPEED_DEADBAND){ySpeed=0;}//lateral deadband to avoid twitching
-      if (ta<LOAD_DISTANCE/2){ySpeed = 0;}//only move lateral if close to target
-      if (!tv) {xSpeed = -0.1;rot = 0; ySpeed =0;}// what to do if no target is detected
+      else if (ySpeed > 0.2){ySpeed = 0.2;}//enforce lateral speed limit
+      else if (ySpeed<-0.2){ySpeed=-0.2;}//enforce lateral speed limit
+      //if (ta<LOAD_DISTANCE/2){ySpeed = 0;}//only move lateral if close to target
+      if (!tv) {xSpeed = -0.1;rot = 0; ySpeed =0;}// what to do if no target is detected, NECESSARY for initial move off wall
       driveSubsystem.drive(xSpeed, ySpeed, rot, false);
-      if(Math.abs(tx)<1&&Math.abs(targetpose[4])<1&&Math.abs(ta)<LOAD_DISTANCE&&tv){//need validity check tv
+      if(Math.abs(tx)>(LOAD_Y_OFFSET-2)&&Math.abs(targetpose[4])<2&&Math.abs(targetpose[2])>=LOAD_DISTANCE&&tv||(System.currentTimeMillis()>timer+4000)){//need validity check tv
         //check to switch steps
         step = WAIT_AT_LOAD;// switch to final movement
         timer = System.currentTimeMillis();
