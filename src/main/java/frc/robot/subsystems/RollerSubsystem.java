@@ -13,6 +13,7 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 /** Class to run the rollers over CAN */
 public class RollerSubsystem extends SubsystemBase {
   private TalonSRX RollerMotor = new TalonSRX(RollerConstants.kRollerMotorCanId);
+  //need to add spark max motor controler for final design
 
   public RollerSubsystem() {
     RollerMotor.configContinuousCurrentLimit(RollerConstants.kRollerCurrentLimit);
