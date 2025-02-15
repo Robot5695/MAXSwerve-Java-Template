@@ -106,8 +106,8 @@ public static final class ElevatorConstants{
   }
 
   public static final class RollerConstants {
-    public static final int kRollerMotorCanId = 2;
-    public static final int kRollerCurrentLimit = 60;
+    public static final int kRollerMotorCanId = 20;
+    public static final int kRollerCurrentLimit = 35;
     public static final double kRollerMotorVoltageComp = 10;
     public static final double kRollerEjectValue = 0.2;//roller eject speed
   }
