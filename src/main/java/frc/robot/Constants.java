@@ -59,6 +59,11 @@ public final class Constants {
     public static final boolean kGyroReversed = false;
   }
 
+public static final class ElevatorConstants{
+  public static final int elevator1CanId = 18;
+  public static final int elevator2CanId = 19;
+}
+
   public static final class ModuleConstants {
     // The MAXSwerve module can be configured with one of three pinion gears: 12T,
     // 13T, or 14T. This changes the drive speed of the module (a pinion gear with
@@ -101,8 +106,8 @@ public final class Constants {
   }
 
   public static final class RollerConstants {
-    public static final int kRollerMotorCanId = 2;
-    public static final int kRollerCurrentLimit = 60;
+    public static final int kRollerMotorCanId = 20;
+    public static final int kRollerCurrentLimit = 35;
     public static final double kRollerMotorVoltageComp = 10;
     public static final double kRollerEjectValue = 0.2;//roller eject speed
   }
