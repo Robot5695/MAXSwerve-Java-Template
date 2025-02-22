@@ -70,17 +70,18 @@ public class RobotContainer {
                 false),
             m_robotDrive)); 
 
+            //roller defaults to stopped, reverse is direction of coral feed
     m_rollerSubsystem.setDefaultCommand(
         new RollerCommand(
           () -> 0.0,
-            () -> m_driverController.getRightTriggerAxis() + m_driverController.getLeftTriggerAxis()/2,
+            () -> 0.0,
            
             m_rollerSubsystem));
 
     
     //elevator default logic
     m_Elevator.setDefaultCommand(
-      new RunCommand(()->m_Elevator.setTarget(m_Elevator.getPosition()), m_Elevator)
+      new RunCommand(()->m_Elevator.setTarget(m_Elevator.getTarget()+(m_driverController.getLeftTriggerAxis()-m_driverController.getRightTriggerAxis())/10), m_Elevator)
     );
   }
 
@@ -101,12 +102,20 @@ public class RobotContainer {
         m_robotDrive));
 
     m_driverController
-    .a()
+    .rightBumper()
     .whileTrue(new RollerCommand(
-        () -> RollerConstants.kRollerEjectValue, 
-        () -> 0.0, 
+      () -> 0.0,
+        () -> 1.0,
+        m_rollerSubsystem));
+
+    m_driverController
+    .leftBumper()
+    .whileTrue(new RollerCommand(
+      () -> 0.0,
+        () -> 0.5,
         m_rollerSubsystem));
    
+        /* bumper based elevator control
         m_driverController
         .rightBumper()
         .whileTrue(new RunCommand(() -> m_Elevator.setTarget(m_Elevator.getTarget()+1), m_Elevator));
@@ -114,7 +123,7 @@ public class RobotContainer {
         m_driverController
         .leftBumper()
         .whileTrue(new RunCommand(() -> m_Elevator.setTarget(m_Elevator.getTarget()-1), m_Elevator));
-
+        */
   }
 
   public Command getAutonomousCommand(){
