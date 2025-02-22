@@ -20,6 +20,7 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.Constants.RollerConstants;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.Elevator;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
@@ -41,7 +42,8 @@ public class RobotContainer {
   // The robot's subsystems
   private final DriveSubsystem m_robotDrive = new DriveSubsystem();
   private final RollerSubsystem m_rollerSubsystem = new RollerSubsystem();
-
+  private final Elevator m_Elevator = new Elevator();
+  private double targetDelta;
   // The driver's controller
   CommandXboxController m_driverController = new CommandXboxController(OIConstants.kDriverControllerPort);
 
@@ -70,9 +72,16 @@ public class RobotContainer {
 
     m_rollerSubsystem.setDefaultCommand(
         new RollerCommand(
-            () -> m_driverController.getRightTriggerAxis()/2,
-            () -> m_driverController.getLeftTriggerAxis()/2, 
+          () -> 0.0,
+            () -> m_driverController.getRightTriggerAxis() + m_driverController.getLeftTriggerAxis()/2,
+           
             m_rollerSubsystem));
+
+    
+    //elevator default logic
+    m_Elevator.setDefaultCommand(
+      new RunCommand(()->m_Elevator.setTarget(m_Elevator.getPosition()), m_Elevator)
+    );
   }
 
   /**
@@ -95,9 +104,17 @@ public class RobotContainer {
     .a()
     .whileTrue(new RollerCommand(
         () -> RollerConstants.kRollerEjectValue, 
-        () -> 0, 
+        () -> 0.0, 
         m_rollerSubsystem));
    
+        m_driverController
+        .rightBumper()
+        .whileTrue(new RunCommand(() -> m_Elevator.setTarget(m_Elevator.getTarget()+1), m_Elevator));
+
+        m_driverController
+        .leftBumper()
+        .whileTrue(new RunCommand(() -> m_Elevator.setTarget(m_Elevator.getTarget()-1), m_Elevator));
+
   }
 
   public Command getAutonomousCommand(){

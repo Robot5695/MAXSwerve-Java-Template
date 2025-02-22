@@ -34,7 +34,7 @@ public class Elevator extends SubsystemBase {
      elevator2= new SparkMax(ElevatorConstants.elevator2CanId, MotorType.kBrushless);
     elevatorEncoder = elevator1.getEncoder();
   
-    elevatorClosedLoopController = elevator1.getClosedLoopController();
+    
     elevator1config = new SparkMaxConfig();
     elevator2config = new SparkMaxConfig();
     elevator1config.inverted(false);
@@ -44,6 +44,7 @@ public class Elevator extends SubsystemBase {
     elevator1config.smartCurrentLimit(10,10);//set current limits
     elevator2config.smartCurrentLimit(10,10);//set current limits
     elevator1config.closedLoop.pid(1,0,0);//PID values for elevator 1
+    elevatorClosedLoopController = elevator1.getClosedLoopController();
     elevator1.configure(elevator1config,ResetMode.kResetSafeParameters,PersistMode.kPersistParameters);//set elevator 1 configuration
     elevator2.configure(elevator2config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);//set follower
     elevatorEncoder.setPosition(0);
@@ -60,10 +61,17 @@ public class Elevator extends SubsystemBase {
     return target;
   }
 
+  public double getPosition(){
+    return elevatorEncoder.getPosition();
+
+  }
+
   @Override
   public void periodic() {
     SmartDashboard.putNumber("Elevator Position", elevatorEncoder.getPosition());
     SmartDashboard.putNumber("Elevator Target", target);
+    SmartDashboard.putNumber("elevator1 current", elevator1.getOutputCurrent());
+    SmartDashboard.putNumber("elevator2", elevator2.getOutputCurrent());
   }
 
 }
