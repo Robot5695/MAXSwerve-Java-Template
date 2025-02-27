@@ -31,6 +31,8 @@ import java.util.List;
 import frc.robot.commands.RollerCommand;
 import frc.robot.commands.targetFollow;
 import frc.robot.subsystems.RollerSubsystem;
+import frc.robot.subsystems.Tilter;
+import frc.robot.subsystems.Climber;
 
 /*
  * This class is where the bulk of the robot should be declared.  Since Command-based is a
@@ -43,9 +45,13 @@ public class RobotContainer {
   private final DriveSubsystem m_robotDrive = new DriveSubsystem();
   private final RollerSubsystem m_rollerSubsystem = new RollerSubsystem();
   private final Elevator m_Elevator = new Elevator();
+  private final Tilter m_Tilter = new Tilter();
+  private final Climber m_Climber= new Climber();
+
   private double targetDelta;
   // The driver's controller
   CommandXboxController m_driverController = new CommandXboxController(OIConstants.kDriverControllerPort);
+  CommandXboxController m_driverController2 = new CommandXboxController(OIConstants.kDriverControllerPort+1);
 
   SendableChooser<Command> m_chooser = new SendableChooser<>();
   /**
@@ -83,6 +89,17 @@ public class RobotContainer {
     m_Elevator.setDefaultCommand(
       new RunCommand(()->m_Elevator.setTarget(m_Elevator.getTarget()+(m_driverController.getLeftTriggerAxis()-m_driverController.getRightTriggerAxis())/10), m_Elevator)
     );
+
+
+    /* //tilter default logic
+    m_Tilter.setDefaultCommand(
+      new RunCommand(()->m_Tilter.setTilterSpeed(m_driverController2.getLeftY()))
+    );
+    //climber default logic
+    m_Climber.setDefaultCommand(
+      new RunCommand(()->m_Climber.setClimberSpeed(m_driverController2.getRightY()))
+    ); */
+    
   }
 
   /**

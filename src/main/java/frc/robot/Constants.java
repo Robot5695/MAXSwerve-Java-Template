@@ -111,4 +111,14 @@ public static final class ElevatorConstants{
     public static final double kRollerMotorVoltageComp = 10;
     public static final double kRollerEjectValue = 0.2;//roller eject speed
   }
+
+  public static final class ClimberConstants {
+    public static final int kClimberMotorCanId = 22;
+    public static final int kClimberMotorStallCurrent = 20;
+  }
+
+  public static final class TilterConstants {
+    public static final int kTilterMotorCanId = 23;
+    public static final int kTilterMotorStallCurrent = 20;
+  }
 }
