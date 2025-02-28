@@ -114,11 +114,11 @@ public static final class ElevatorConstants{
 
   public static final class ClimberConstants {
     public static final int kClimberMotorCanId = 22;
-    public static final int kClimberMotorStallCurrent = 20;
+    public static final int kClimberMotorStallCurrent = 35;
   }
 
   public static final class TilterConstants {
     public static final int kTilterMotorCanId = 23;
-    public static final int kTilterMotorStallCurrent = 20;
+    public static final int kTilterMotorStallCurrent = 10;
   }
 }

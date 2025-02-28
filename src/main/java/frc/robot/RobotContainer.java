@@ -91,14 +91,14 @@ public class RobotContainer {
     );
 
 
-    /* //tilter default logic
+    //tilter default logic
     m_Tilter.setDefaultCommand(
-      new RunCommand(()->m_Tilter.setTilterSpeed(m_driverController2.getLeftY()))
+      new RunCommand(()->m_Tilter.setTilterSpeed(m_driverController2.getLeftY()/2),m_Tilter)
     );
     //climber default logic
     m_Climber.setDefaultCommand(
-      new RunCommand(()->m_Climber.setClimberSpeed(m_driverController2.getRightY()))
-    ); */
+      new RunCommand(()->m_Climber.setClimberSpeed(m_driverController2.getRightY()),m_Climber)
+    );
     
   }
 
