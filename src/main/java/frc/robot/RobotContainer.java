@@ -100,11 +100,11 @@ public class RobotContainer {
 
     //tilter default logic
     m_Tilter.setDefaultCommand(
-      new RunCommand(()->m_Tilter.setTilterSpeed(m_driverController2.getLeftY()/2),m_Tilter)
+      new RunCommand(()->m_Tilter.setTilterSpeed(0),m_Tilter)
     );
     //climber default logic
     m_Climber.setDefaultCommand(
-      new RunCommand(()->m_Climber.setClimberSpeed(m_driverController2.getRightY()),m_Climber)
+      new RunCommand(()->m_Climber.setClimberSpeed(0),m_Climber)
     );
     
   }
@@ -139,6 +139,16 @@ public class RobotContainer {
         () -> 0.5,
         m_rollerSubsystem));
    
+m_driverController2.a().whileTrue(new RunCommand(()->m_Elevator.setTarget(0), m_Elevator));
+m_driverController2.b().whileTrue(new RunCommand(()->m_Elevator.setTarget(0), m_Elevator));
+m_driverController2.x().whileTrue(new RunCommand(()->m_Elevator.setTarget(0), m_Elevator));
+m_driverController2.y().whileTrue(new RunCommand(()->m_Elevator.setTarget(0), m_Elevator));
+
+m_driverController2.povLeft().whileTrue(new RunCommand(()->m_Tilter.setTilterSpeed(0.5),m_Tilter));
+m_driverController2.povRight().whileTrue(new RunCommand(()->m_Tilter.setTilterSpeed(-0.5),m_Tilter));
+
+        m_driverController2.leftStick().whileTrue(new RunCommand(()->m_Climber.setClimberSpeed(-1), m_Climber));
+        m_driverController2.rightStick().whileTrue(new RunCommand(()->m_Climber.setClimberSpeed(1), m_Climber));
         /* bumper based elevator control
         m_driverController
         .rightBumper()
