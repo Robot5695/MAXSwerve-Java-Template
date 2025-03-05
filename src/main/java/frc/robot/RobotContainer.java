@@ -13,6 +13,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
+import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.AutoConstants;
@@ -28,6 +29,9 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import java.util.List;
+
+import com.ctre.phoenix6.configs.PWM1Configs;
+
 import frc.robot.commands.RollerCommand;
 import frc.robot.commands.targetFollow;
 import frc.robot.subsystems.RollerSubsystem;
@@ -48,6 +52,8 @@ public class RobotContainer {
   private final Tilter m_Tilter = new Tilter();
   private final Climber m_Climber= new Climber();
 
+
+
   private double targetDelta;
   // The driver's controller
   CommandXboxController m_driverController = new CommandXboxController(OIConstants.kDriverControllerPort);
@@ -60,6 +66,7 @@ public class RobotContainer {
   public RobotContainer() {
     // Configure the button bindings
     configureButtonBindings();
+
 
     m_chooser.setDefaultOption("moveOnly", moveOnly());
     m_chooser.addOption ("RotateToTarget", tagfollower());
