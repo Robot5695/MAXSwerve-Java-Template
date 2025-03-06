@@ -60,8 +60,8 @@ public final class Constants {
   }
 
 public static final class ElevatorConstants{
-  public static final int elevator1CanId = 18;
-  public static final int elevator2CanId = 19;
+  public static final int elevator1CanId = 19;
+  public static final int elevator2CanId = 18;
 }
 
   public static final class ModuleConstants {
