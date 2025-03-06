@@ -125,20 +125,21 @@ public class RobotContainer {
         () -> m_robotDrive.setX(),
         m_robotDrive));
 
-    m_driverController
+    m_driverController2
     .rightBumper()
     .whileTrue(new RollerCommand(
       () -> 0.0,
         () -> 1.0,
         m_rollerSubsystem));
 
-    m_driverController
+    m_driverController2
     .leftBumper()
     .whileTrue(new RollerCommand(
       () -> 0.0,
         () -> 0.5,
         m_rollerSubsystem));
    
+        //0 is bottom, 57 is absolute top
 m_driverController2.a().whileTrue(new RunCommand(()->m_Elevator.setTarget(0), m_Elevator));
 m_driverController2.b().whileTrue(new RunCommand(()->m_Elevator.setTarget(0), m_Elevator));
 m_driverController2.x().whileTrue(new RunCommand(()->m_Elevator.setTarget(0), m_Elevator));
