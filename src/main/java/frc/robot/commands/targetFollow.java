@@ -57,11 +57,11 @@ public class targetFollow extends Command {
     
 
     // this code section drives the robot to move toward an apriltag target
-    double tx = LimelightHelpers.getTX("");
-    double ta = LimelightHelpers.getTA("");
-    boolean tv = LimelightHelpers.getTV("");
-    double tid = LimelightHelpers.getFiducialID("");
-    double[] targetpose =LimelightHelpers.getTargetPose_CameraSpace("");//returns array of xyz adn pitch/roll/yaw position of target relative to robot
+    double tx = LimelightHelpers.getTX("limelight-front");
+    double ta = LimelightHelpers.getTA("limelight-front");
+    boolean tv = LimelightHelpers.getTV("limelight-front");
+    double tid = LimelightHelpers.getFiducialID("limelight-front");
+    double[] targetpose =LimelightHelpers.getTargetPose_CameraSpace("limelight-front");//returns array of xyz adn pitch/roll/yaw position of target relative to robot
     
     SmartDashboard.putNumber("tx", tx);
     SmartDashboard.putNumber("ta", ta);
