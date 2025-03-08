@@ -69,7 +69,9 @@ public class RobotContainer {
 
 
     m_chooser.setDefaultOption("moveOnly", moveOnly());
-    m_chooser.addOption ("RotateToTarget", tagfollower());
+    m_chooser.addOption ("Center", tagfollower(2));
+    m_chooser.addOption ("Right", tagfollower(2));
+    m_chooser.addOption ("Left", tagfollower(2));
     SmartDashboard.putData(m_chooser);
     // Configure default commands
     m_robotDrive.setDefaultCommand(
@@ -94,7 +96,7 @@ public class RobotContainer {
     
     //elevator default logic
     m_Elevator.setDefaultCommand(
-      new RunCommand(()->m_Elevator.setTarget(m_Elevator.getTarget()+(m_driverController.getLeftTriggerAxis()-m_driverController.getRightTriggerAxis())/10), m_Elevator)
+      new RunCommand(()->m_Elevator.setTarget(m_Elevator.getPosition()+(m_driverController.getLeftTriggerAxis()-m_driverController.getRightTriggerAxis())/3), m_Elevator)
     );
 
 
@@ -141,9 +143,9 @@ public class RobotContainer {
    
         //0 is bottom, 57 is absolute top
 m_driverController2.a().whileTrue(new RunCommand(()->m_Elevator.setTarget(0), m_Elevator));
-m_driverController2.b().whileTrue(new RunCommand(()->m_Elevator.setTarget(0), m_Elevator));
-m_driverController2.x().whileTrue(new RunCommand(()->m_Elevator.setTarget(0), m_Elevator));
-m_driverController2.y().whileTrue(new RunCommand(()->m_Elevator.setTarget(0), m_Elevator));
+m_driverController2.b().whileTrue(new RunCommand(()->m_Elevator.setTarget(15), m_Elevator));
+m_driverController2.x().whileTrue(new RunCommand(()->m_Elevator.setTarget(30), m_Elevator));
+m_driverController2.y().whileTrue(new RunCommand(()->m_Elevator.setTarget(55), m_Elevator));
 
 m_driverController2.povLeft().whileTrue(new RunCommand(()->m_Tilter.setTilterSpeed(0.5),m_Tilter));
 m_driverController2.povRight().whileTrue(new RunCommand(()->m_Tilter.setTilterSpeed(-0.5),m_Tilter));
@@ -213,8 +215,8 @@ m_driverController2.povRight().whileTrue(new RunCommand(()->m_Tilter.setTilterSp
   }
 
 
-  public Command tagfollower(){
-
-    return new targetFollow(m_robotDrive,m_rollerSubsystem);
+  public Command tagfollower(int pipeline){
+LimelightHelpers.setPipelineIndex("limelight-front", pipeline);
+    return new targetFollow(m_robotDrive,m_rollerSubsystem, m_Elevator);
   }
 }

@@ -8,14 +8,16 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.LimelightHelpers;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.RollerSubsystem;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class targetFollow extends Command {
   private final DriveSubsystem driveSubsystem;
   private final RollerSubsystem rollerSubsystem;
+  private final Elevator elevatorSubsystem;
   private int step;
-  private final int SCORE_DISTANCE = 20;// limelight ta threshold for being "close enough" to score
+  private final int SCORE_DISTANCE = 3;// limelight ta threshold for being "close enough" to score
   private final int LOAD_DISTANCE = 2; // distance in m to back up for load station from reef
   private final int LOAD_Y_OFFSET = 25;// lateral offset to back up to when loading
   private long timer;
@@ -32,21 +34,23 @@ public class targetFollow extends Command {
   private final int DRIVE_OFF_START = 5;//move from start
 
   /** Creates a new targetFollow. */
-  public targetFollow(DriveSubsystem driveSubsystem, RollerSubsystem rollerSubsystem) {
+  public targetFollow(DriveSubsystem driveSubsystem, RollerSubsystem rollerSubsystem, Elevator elevatorSubsystem) {
     // Use addRequirements() here to declare subsystem dependencies.
 
     this.driveSubsystem = driveSubsystem;
     this.rollerSubsystem = rollerSubsystem;
+    this.elevatorSubsystem = elevatorSubsystem;
 
     addRequirements(driveSubsystem);
     addRequirements(rollerSubsystem);
+    addRequirements(elevatorSubsystem);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
     System.out.println("targetFollow cmd started");
-    step = DRIVE_OFF_START;// steps in the program, starting at zero (drive to reef)
+    step = DRIVE_OFF_START;// steps in the program, starting at this step
     timer = System.currentTimeMillis();
   }
 
@@ -80,6 +84,7 @@ public class targetFollow extends Command {
     switch(step){
       case DRIVE_OFF_START:
       driveSubsystem.drive(0.2, 0, 0, false);
+      elevatorSubsystem.setTarget(0);
       if(System.currentTimeMillis()>timer+4000){
         step = DRIVE_TO_REEF;
         timer = System.currentTimeMillis();
@@ -87,7 +92,7 @@ public class targetFollow extends Command {
       break;
 
       case DRIVE_TO_REEF://driving to reef
-      double rot = -targetpose[4]/100;//25 is the limit view
+      double rot = (-targetpose[4])/200;//25 is the limit view
       if (rot < ROT_DEADBAND && rot > -ROT_DEADBAND){
         rot = 0;
       }
@@ -97,7 +102,7 @@ public class targetFollow extends Command {
       }
       if (xSpeed>0.15) {xSpeed=0.15;}//limit forward speed approaching target
       else if (xSpeed<-0.05) {xSpeed=-0.05;}//limit reverse speed adjusting back from target
-      double ySpeed = -tx/50;//- move right
+      double ySpeed = (-16-tx)/50;//- move right
       if(ySpeed< YSPEED_DEADBAND&& ySpeed>-YSPEED_DEADBAND){
         ySpeed = 0;
       }else if (ySpeed>0.05){ySpeed=0.05;}//enforce lateral speed limit
@@ -118,6 +123,7 @@ public class targetFollow extends Command {
       if(System.currentTimeMillis()>timer+1000){// roll for 1000 ms
         step = MOVE_TO_LOAD;// end
         rollerSubsystem.runRoller(0, 0);
+        elevatorSubsystem.setTarget(0);
         System.out.println("score done");
         timer = System.currentTimeMillis();
         break;
@@ -126,6 +132,8 @@ public class targetFollow extends Command {
 
       case FINAL_APPROACH://final movement to reef
       driveSubsystem.drive(0.05, 0, 0, false);
+      elevatorSubsystem.setTarget(15);
+      
       if(System.currentTimeMillis()>timer+1000){// 1000 ms forward drive time
         step = SCORE;// switch to scoring
         timer = System.currentTimeMillis();
@@ -133,6 +141,7 @@ public class targetFollow extends Command {
       break;
 
       case MOVE_TO_LOAD:
+      LimelightHelpers.setPipelineIndex("limelight-front", 2);//pipeline 2 is outer corner tags
       //System.out.println("move 2 load started");
       //rot = -tx/100;//25 is the limit view
       rot = -targetpose[4]/100;// align robot angle with normal vector of april tag

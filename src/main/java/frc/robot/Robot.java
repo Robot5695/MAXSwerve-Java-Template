@@ -37,6 +37,7 @@ public class Robot extends TimedRobot {
     camera1 = CameraServer.startAutomaticCapture(0);
     camera2 = CameraServer.startAutomaticCapture(1);
     lightstrip = new PWMSparkMax(0);
+   
   }
 
   /**
