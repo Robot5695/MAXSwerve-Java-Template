@@ -43,7 +43,7 @@ public class Elevator extends SubsystemBase {
     elevator2config.idleMode(IdleMode.kBrake);
     elevator1config.smartCurrentLimit(10,35);//set current limits
     elevator2config.smartCurrentLimit(10,35);//set current limits
-    elevator1config.closedLoop.pid(2,0.0001,0);//PID values for elevator 1
+    elevator1config.closedLoop.pid(2,0,0);//PID values for elevator 1
     elevatorClosedLoopController = elevator1.getClosedLoopController();
     elevator1.configure(elevator1config,ResetMode.kResetSafeParameters,PersistMode.kPersistParameters);//set elevator 1 configuration
     elevator2.configure(elevator2config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);//set follower
