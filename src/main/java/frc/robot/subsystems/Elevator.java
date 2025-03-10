@@ -4,8 +4,16 @@
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.controller.ElevatorFeedforward;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import static edu.wpi.first.units.Units.Volts;
+import static edu.wpi.first.units.Units.Second;
+
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkBase.ControlType;
@@ -25,13 +33,28 @@ public class Elevator extends SubsystemBase {
   private final SparkMaxConfig elevator1config, elevator2config;
   private final RelativeEncoder elevatorEncoder;
   private double target;
+  private final ProfiledPIDController m_controller;
+  private final ElevatorFeedforward elevatorFeedforward;
 
   private final SparkClosedLoopController elevatorClosedLoopController;
-  //need to add spark max motor controler for final design
 
   public Elevator() {
-     elevator1= new SparkMax(ElevatorConstants.elevator1CanId, MotorType.kBrushless);
-     elevator2= new SparkMax(ElevatorConstants.elevator2CanId, MotorType.kBrushless);
+    elevator1= new SparkMax(ElevatorConstants.elevator1CanId, MotorType.kBrushless);
+    elevator2= new SparkMax(ElevatorConstants.elevator2CanId, MotorType.kBrushless);
+
+    m_controller = new ProfiledPIDController(
+      ElevatorConstants.kElevatorKp, 
+      ElevatorConstants.kElevatorKi, 
+      ElevatorConstants.kElevatorKd, 
+      new TrapezoidProfile.Constraints(ElevatorConstants.maxSpeed, ElevatorConstants.maxAcceleration)
+    );
+    elevatorFeedforward = new ElevatorFeedforward(
+      ElevatorConstants.kElevatorkS, 
+      ElevatorConstants.kElevatorkG,
+      ElevatorConstants.kElevatorkV,
+      ElevatorConstants.kElevatorkA
+      );
+
     elevatorEncoder = elevator1.getEncoder();
   
     
@@ -41,8 +64,8 @@ public class Elevator extends SubsystemBase {
     elevator2config.follow(elevator1, true);
     elevator1config.idleMode(IdleMode.kBrake);
     elevator2config.idleMode(IdleMode.kBrake);
-    elevator1config.smartCurrentLimit(10,35);//set current limits
-    elevator2config.smartCurrentLimit(10,35);//set current limits
+    elevator1config.smartCurrentLimit(35,35);//set current limits
+    elevator2config.smartCurrentLimit(35,35);//set current limits
     elevator1config.closedLoop.pid(2,0,0);//PID values for elevator 1
     elevatorClosedLoopController = elevator1.getClosedLoopController();
     elevator1.configure(elevator1config,ResetMode.kResetSafeParameters,PersistMode.kPersistParameters);//set elevator 1 configuration
@@ -53,10 +76,23 @@ public class Elevator extends SubsystemBase {
   }
 
   public void setTarget(double newTarget){
+    if(newTarget>target){
+      //moving up
+      elevator1config.closedLoop.pid(0.9,0,0);
+    }else if(newTarget<target){
+      //moving down
+      elevator1config.closedLoop.pid(0.9,0,0);
+    }
+
     target = newTarget;
+    //set low/high limits
     if (target<0){
       target = 0;
     }
+    if (target>57){
+      target = 57;
+    }
+    //command the controller to drive motor towards the target
     elevatorClosedLoopController.setReference(target, ControlType.kPosition);
   }
 
@@ -66,6 +102,17 @@ public class Elevator extends SubsystemBase {
 
   public double getPosition(){
     return elevatorEncoder.getPosition();
+
+  }
+
+
+  public void goToL2(){
+    m_controller.setGoal(ElevatorConstants.l2);
+
+    double pidOutput = m_controller.calculate(elevatorEncoder.getPosition());
+    double feedforwardouput = elevatorFeedforward.calculate(m_controller.getSetpoint().velocity);
+    
+    elevator1.setVoltage(pidOutput+feedforwardouput);
 
   }
 

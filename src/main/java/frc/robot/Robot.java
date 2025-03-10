@@ -4,8 +4,12 @@
 
 package frc.robot;
 
+import java.util.Optional;
+
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -23,8 +27,8 @@ public class Robot extends TimedRobot {
   private RobotContainer m_robotContainer;
   private UsbCamera camera1, camera2;
   private PWMSparkMax lightstrip;
-
-
+  private long gametimer;
+  private Optional<Alliance> ally;
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -35,9 +39,9 @@ public class Robot extends TimedRobot {
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
     camera1 = CameraServer.startAutomaticCapture(0);
-    camera2 = CameraServer.startAutomaticCapture(1);
+    //camera2 = CameraServer.startAutomaticCapture(1);
     lightstrip = new PWMSparkMax(0);
-   
+    gametimer = System.currentTimeMillis();
   }
 
   /**
@@ -79,6 +83,8 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }
+
+    
   }
 
   /** This function is called periodically during autonomous. */
@@ -94,12 +100,49 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
-    
+    ally = DriverStation.getAlliance();
+if (ally.isPresent()) {
+    if (ally.get() == Alliance.Red) {
+        //<RED ACTION>
+        lightstrip.set(0.61);//red
+    }
+    if (ally.get() == Alliance.Blue) {
+        //<BLUE ACTION>
+        lightstrip.set(0.87);//red
+    }
+}
+else {
+    //<NO COLOR YET ACTION>
+}
+//begin gametimer
+gametimer = System.currentTimeMillis();
   }
 
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+
+    if(System.currentTimeMillis()-gametimer>105000){
+      ally = DriverStation.getAlliance();
+if (ally.isPresent()) {
+    if (ally.get() == Alliance.Red) {
+        //<RED ACTION>
+        lightstrip.set(-0.11);//red strobe
+      
+    }
+    if (ally.get() == Alliance.Blue) {
+        //<BLUE ACTION>
+        
+      lightstrip.set(-0.09);//blue strobe
+    }
+}
+else {
+    //<NO COLOR YET ACTION>
+}
+      
+    }
+    
+  }
 
   @Override
   public void testInit() {

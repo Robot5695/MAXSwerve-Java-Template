@@ -96,7 +96,7 @@ public class RobotContainer {
     
     //elevator default logic
     m_Elevator.setDefaultCommand(
-      new RunCommand(()->m_Elevator.setTarget(m_Elevator.getPosition()+(m_driverController.getLeftTriggerAxis()-m_driverController.getRightTriggerAxis())/3), m_Elevator)
+      new RunCommand(()->m_Elevator.setTarget(m_Elevator.getTarget()+(m_driverController.getLeftTriggerAxis()-m_driverController.getRightTriggerAxis())/2), m_Elevator)
     );
 
 
@@ -143,7 +143,7 @@ public class RobotContainer {
    
         //0 is bottom, 57 is absolute top
 m_driverController2.a().whileTrue(new RunCommand(()->m_Elevator.setTarget(0), m_Elevator));
-m_driverController2.b().whileTrue(new RunCommand(()->m_Elevator.setTarget(15), m_Elevator));
+m_driverController2.b().whileTrue(new RunCommand(()->m_Elevator.setTarget(15),m_Elevator));
 m_driverController2.x().whileTrue(new RunCommand(()->m_Elevator.setTarget(30), m_Elevator));
 m_driverController2.y().whileTrue(new RunCommand(()->m_Elevator.setTarget(55), m_Elevator));
 

@@ -62,6 +62,19 @@ public final class Constants {
 public static final class ElevatorConstants{
   public static final int elevator1CanId = 19;
   public static final int elevator2CanId = 18;
+  public static final double kElevatorKp = 0;
+  public static final double kElevatorKi = 0;
+  public static final double kElevatorKd = 0;
+  public static final double kElevatorkS = 0;
+  public static final double kElevatorkG = 0;
+  public static final double kElevatorkV = 0; //volts per velocity
+  public static final double kElevatorkA = 0; //volt per acceleration
+  public static final double maxSpeed = 0.3;
+  public static final double maxAcceleration = 0.3;
+  public static final double l1 = 0;
+  public static final double l2 = 15;
+  public static final double l3 = 30;
+  public static final double l4 = 55;
 }
 
   public static final class ModuleConstants {
