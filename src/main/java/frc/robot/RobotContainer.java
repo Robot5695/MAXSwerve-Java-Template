@@ -13,6 +13,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -23,6 +24,7 @@ import frc.robot.Constants.RollerConstants;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.Elevator;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -32,6 +34,7 @@ import java.util.List;
 
 import com.ctre.phoenix6.configs.PWM1Configs;
 
+import frc.robot.commands.AlignToReef;
 import frc.robot.commands.RollerCommand;
 import frc.robot.commands.targetFollow;
 import frc.robot.subsystems.RollerSubsystem;
@@ -127,6 +130,12 @@ public class RobotContainer {
         () -> m_robotDrive.setX(),
         m_robotDrive));
 
+    /* 
+    //commands to align to the reef
+    m_driverController.rightTrigger().onTrue(new AlignToReef(true, m_robotDrive).withTimeout(7));
+    m_driverController.leftTrigger().onTrue(new AlignToReef(false, m_robotDrive).withTimeout(7));
+    */
+        
     m_driverController2
     .rightBumper()
     .whileTrue(new RollerCommand(
@@ -146,6 +155,7 @@ m_driverController2.a().whileTrue(new RunCommand(()->m_Elevator.setTarget(0), m_
 m_driverController2.b().whileTrue(new RunCommand(()->m_Elevator.setTarget(15),m_Elevator));
 m_driverController2.x().whileTrue(new RunCommand(()->m_Elevator.setTarget(30), m_Elevator));
 m_driverController2.y().whileTrue(new RunCommand(()->m_Elevator.setTarget(55), m_Elevator));
+
 
 m_driverController2.povLeft().whileTrue(new RunCommand(()->m_Tilter.setTilterSpeed(0.5),m_Tilter));
 m_driverController2.povRight().whileTrue(new RunCommand(()->m_Tilter.setTilterSpeed(-0.5),m_Tilter));

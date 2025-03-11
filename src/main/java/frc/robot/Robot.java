@@ -10,6 +10,7 @@ import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -62,7 +63,9 @@ public class Robot extends TimedRobot {
 
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+    m_robotContainer.m_driverController.setRumble(RumbleType.kBothRumble, 0);
+  }
 
   @Override
   public void disabledPeriodic() {}
@@ -123,6 +126,8 @@ gametimer = System.currentTimeMillis();
   public void teleopPeriodic() {
 
     if(System.currentTimeMillis()-gametimer>105000){
+      //rumble here
+      m_robotContainer.m_driverController.setRumble(RumbleType.kBothRumble, 1);
       ally = DriverStation.getAlliance();
 if (ally.isPresent()) {
     if (ally.get() == Alliance.Red) {
@@ -141,7 +146,9 @@ else {
 }
       
     }
-    
+    if(System.currentTimeMillis()-gametimer>110000){
+      m_robotContainer.m_driverController.setRumble(RumbleType.kBothRumble, 0);
+    }
   }
 
   @Override

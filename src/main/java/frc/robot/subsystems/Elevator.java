@@ -8,11 +8,7 @@ import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import static edu.wpi.first.units.Units.Volts;
-import static edu.wpi.first.units.Units.Second;
 
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -78,10 +74,10 @@ public class Elevator extends SubsystemBase {
   public void setTarget(double newTarget){
     if(newTarget>target){
       //moving up control
-      elevator1config.closedLoop.pid(0.8,0,0);
+      elevator1config.closedLoop.pid(0.8,0,0);//positive D could help "soften" upward approach to target
     }else if(newTarget<target){
       //moving down
-      elevator1config.closedLoop.pid(0.8,0,0);
+      elevator1config.closedLoop.pid(0.4,0,0);//positive D could help "soften" downward approach to target
     }
 
     target = newTarget;
@@ -105,7 +101,8 @@ public class Elevator extends SubsystemBase {
 
   }
 
-
+  /* 
+  //possible command to go to L2, untested
   public void goToL2(){
     m_controller.setGoal(ElevatorConstants.l2);
 
@@ -114,7 +111,7 @@ public class Elevator extends SubsystemBase {
     
     elevator1.setVoltage(pidOutput+feedforwardouput);
 
-  }
+  }*/
 
   @Override
   public void periodic() {

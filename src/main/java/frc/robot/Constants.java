@@ -109,6 +109,19 @@ public static final class ElevatorConstants{
     public static final double kPYController = 1;
     public static final double kPThetaController = 1;
 
+    //for aligning to reef april tag
+    public static final double x_reef_alignment_Pvalue = 3.3;
+    public static final double y_reef_alignment_Pvalue = 3.3;
+    public static final double r_reef_alignment_Pvalue = 0.058;
+    public static final double x_setpoint = -0.5;
+    public static final double x_tolerance = 0.02;
+    public static final double y_setpoint = 0.5;
+    public static final double y_tolerance = 0.02;
+    public static final double rotational_setpoint = 0;
+    public static final double rotational_tolerance = 1;
+
+
+
     // Constraint for the motion profiled robot angle controller
     public static final TrapezoidProfile.Constraints kThetaControllerConstraints = new TrapezoidProfile.Constraints(
         kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
