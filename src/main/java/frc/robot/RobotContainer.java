@@ -72,9 +72,22 @@ public class RobotContainer {
 
 
     m_chooser.setDefaultOption("moveOnly", moveOnly());
-    m_chooser.addOption ("Center", tagfollower(2));
-    m_chooser.addOption ("Right", tagfollower(2));
-    m_chooser.addOption ("Left", tagfollower(2));
+    /*
+     * Pipelines
+     * center tags 10,21
+     * inner corner tags 9,11,20,22
+     * all reef tags 6-11, 17-22
+     * loading tags 1,2,12,13
+     * 
+     * 0: check ll3
+     * 1: check ll3
+     * 2: outer corner tags (6,8,17,19)
+     * 3: not defined on LL
+     * 4: not defined
+     */
+    m_chooser.addOption ("Center", tagfollower(2));//use center pipeline
+    m_chooser.addOption ("Right", tagfollower(2));//use inner corner pipeline
+    m_chooser.addOption ("Left", tagfollower(2));//use inner corner pipeline
     SmartDashboard.putData(m_chooser);
     // Configure default commands
     m_robotDrive.setDefaultCommand(
