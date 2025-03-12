@@ -85,9 +85,9 @@ public class RobotContainer {
      * 3: not defined on LL
      * 4: not defined on LL
      */
-    m_chooser.addOption ("Center", tagfollower(2));//use center pipeline
-    m_chooser.addOption ("Right", tagfollower(2));//use inner corner pipeline
-    m_chooser.addOption ("Left", tagfollower(2));//use inner corner pipeline
+    m_chooser.addOption ("Center", tagfollower(0));//use center pipeline
+    m_chooser.addOption ("Right", tagfollower(1));//use inner corner pipeline
+    m_chooser.addOption ("Left", tagfollower(1));//use inner corner pipeline
     SmartDashboard.putData(m_chooser);
     // Configure default commands
     m_robotDrive.setDefaultCommand(
@@ -165,9 +165,9 @@ public class RobotContainer {
    
         //0 is bottom, 57 is absolute top
 m_driverController2.a().whileTrue(new RunCommand(()->m_Elevator.setTarget(0), m_Elevator));
-m_driverController2.b().whileTrue(new RunCommand(()->m_Elevator.setTarget(15),m_Elevator));
-m_driverController2.x().whileTrue(new RunCommand(()->m_Elevator.setTarget(30), m_Elevator));
-m_driverController2.y().whileTrue(new RunCommand(()->m_Elevator.setTarget(55), m_Elevator));
+m_driverController2.b().whileTrue(new RunCommand(()->m_Elevator.setTarget(9),m_Elevator));
+m_driverController2.x().whileTrue(new RunCommand(()->m_Elevator.setTarget(26), m_Elevator));
+m_driverController2.y().whileTrue(new RunCommand(()->m_Elevator.setTarget(52), m_Elevator));
 
 
 m_driverController2.povLeft().whileTrue(new RunCommand(()->m_Tilter.setTilterSpeed(0.5),m_Tilter));

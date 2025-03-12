@@ -50,7 +50,7 @@ public class targetFollow extends Command {
   @Override
   public void initialize() {
     System.out.println("targetFollow cmd started");
-    step = DRIVE_OFF_START;// steps in the program, starting at this step
+    step = DRIVE_TO_REEF;// steps in the program, starting at this step
     timer = System.currentTimeMillis();
   }
 
@@ -67,6 +67,11 @@ public class targetFollow extends Command {
     double tid = LimelightHelpers.getFiducialID("limelight-front");
     double[] targetpose =LimelightHelpers.getTargetPose_CameraSpace("limelight-front");//returns array of xyz adn pitch/roll/yaw position of target relative to robot
     
+    double load_tx = LimelightHelpers.getTX("limelight-rear");
+    double load_ta = LimelightHelpers.getTA("limelight-rear");
+    boolean load_tv = LimelightHelpers.getTV("limelight-rear");
+    double[] load_targetpose = LimelightHelpers.getTargetPose_CameraSpace("limelight-rear");
+
     SmartDashboard.putNumber("tx", tx);
     SmartDashboard.putNumber("ta", ta);
     SmartDashboard.putBoolean("tv", tv);
@@ -91,22 +96,29 @@ public class targetFollow extends Command {
       }
       break;
 
-      case DRIVE_TO_REEF://driving to reef
-      double rot = (-targetpose[4])/200;//25 is the limit view
+      case DRIVE_TO_REEF://driving to reef with camera front alignment
+      //rotational speed calculation based on
+      //double rot = (-targetpose[4])/200;//25 is the limit view, normal angle based direction finding
+      double rot = -tx/100;//target centering center pixel based rotation
       if (rot < ROT_DEADBAND && rot > -ROT_DEADBAND){
         rot = 0;
       }
-      double xSpeed = -(ta-SCORE_DISTANCE)/(SCORE_DISTANCE*5)+0.05;//ta=SCORE_DISTANCE is the target (bigger is closer), 0.2 is the speed limit, xSpeed is forward/reverse
+      // x (forward) speed calculation based on size of target in camera view
+      double xSpeed = (SCORE_DISTANCE-ta)/(SCORE_DISTANCE*5)+0.05;//ta=SCORE_DISTANCE is the target (bigger is closer), 0.2 is the speed limit, xSpeed is forward/reverse
       if(xSpeed < XSPEED_DEADBAND && xSpeed>-XSPEED_DEADBAND){
         xSpeed = 0;
       }
       if (xSpeed>0.15) {xSpeed=0.15;}//limit forward speed approaching target
       else if (xSpeed<-0.05) {xSpeed=-0.05;}//limit reverse speed adjusting back from target
-      double ySpeed = (-16-tx)/50;//- move right
+      // y (lateral) speed calculation
+      //double ySpeed = (-16-tx)/50;//- move right; center pixel based translation
+      double ySpeed = targetpose[4]/300;//- move right; normal angle based translation
       if(ySpeed< YSPEED_DEADBAND&& ySpeed>-YSPEED_DEADBAND){
         ySpeed = 0;
       }else if (ySpeed>0.05){ySpeed=0.05;}//enforce lateral speed limit
       else if (ySpeed<-0.05){ySpeed=-0.05;}//enforce lateral speed limit
+      if (ta<SCORE_DISTANCE*0.5){ySpeed = 0;}//only move lateral if close to target
+      //no target detected
       if (!tv) {xSpeed = 0;rot = -0.1; ySpeed =0;}// what to do if no target is detected
       driveSubsystem.drive(xSpeed, ySpeed, rot, false);
       if(Math.abs(tx)<1&&Math.abs(targetpose[4])<2&&Math.abs(ta)>SCORE_DISTANCE){
@@ -118,10 +130,12 @@ public class targetFollow extends Command {
       break;
 
       case SCORE://scoring coral
+      //need to hold elevator height at score height
       rollerSubsystem.runRoller(0, 0.7);
       driveSubsystem.drive(0, 0, 0, false);
       if(System.currentTimeMillis()>timer+1000){// roll for 1000 ms
-        step = MOVE_TO_LOAD;// end
+        //step = MOVE_TO_LOAD;// load next coral
+        step = 99;//do nothing
         rollerSubsystem.runRoller(0, 0);
         elevatorSubsystem.setTarget(0);
         System.out.println("score done");
@@ -132,7 +146,8 @@ public class targetFollow extends Command {
 
       case FINAL_APPROACH://final movement to reef
       driveSubsystem.drive(0.05, 0, 0, false);
-      elevatorSubsystem.setTarget(15);
+      //move elevator to score level
+      elevatorSubsystem.setTarget(9);
       
       if(System.currentTimeMillis()>timer+1000){// 1000 ms forward drive time
         step = SCORE;// switch to scoring
@@ -157,8 +172,11 @@ public class targetFollow extends Command {
       if(ySpeed <YSPEED_DEADBAND && ySpeed >-YSPEED_DEADBAND){ySpeed=0;}//lateral deadband to avoid twitching
       else if (ySpeed > 0.2){ySpeed = 0.2;}//enforce lateral speed limit
       else if (ySpeed<-0.2){ySpeed=-0.2;}//enforce lateral speed limit
-      //if (ta<LOAD_DISTANCE/2){ySpeed = 0;}//only move lateral if close to target
+      if (ta<LOAD_DISTANCE/2){ySpeed = 0;}//only move lateral if close to target
+
+      //no target detected code
       if (!tv) {xSpeed = -0.1;rot = 0; ySpeed =0;}// what to do if no target is detected, NECESSARY for initial move off wall
+      
       driveSubsystem.drive(xSpeed, ySpeed, rot, false);
       if(Math.abs(tx)>(LOAD_Y_OFFSET-2)&&Math.abs(targetpose[4])<2&&Math.abs(targetpose[2])>=LOAD_DISTANCE&&tv||(System.currentTimeMillis()>timer+4000)){//need validity check tv
         //check to switch steps
@@ -179,7 +197,7 @@ public class targetFollow extends Command {
       break;
 
       default:
-
+      //do nothing by default
       break;
     }
     
