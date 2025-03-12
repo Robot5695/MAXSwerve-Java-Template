@@ -79,11 +79,11 @@ public class RobotContainer {
      * all reef tags 6-11, 17-22
      * loading tags 1,2,12,13
      * 
-     * 0: check ll3
-     * 1: check ll3
-     * 2: outer corner tags (6,8,17,19)
+     * 0: center_tags
+     * 1: inner_corners
+     * 2: outer_corners (6,8,17,19)
      * 3: not defined on LL
-     * 4: not defined
+     * 4: not defined on LL
      */
     m_chooser.addOption ("Center", tagfollower(2));//use center pipeline
     m_chooser.addOption ("Right", tagfollower(2));//use inner corner pipeline
