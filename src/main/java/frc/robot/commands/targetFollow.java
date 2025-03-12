@@ -20,6 +20,7 @@ public class targetFollow extends Command {
   private final int SCORE_DISTANCE = 3;// limelight ta threshold for being "close enough" to score
   private final int LOAD_DISTANCE = 2; // distance in m to back up for load station from reef
   private final int LOAD_Y_OFFSET = 25;// lateral offset to back up to when loading
+  private final int X_OFFSET = 10;//x offset to score on coral
   private long timer;
 
   private final double ROT_DEADBAND = 0.01;
@@ -99,12 +100,12 @@ public class targetFollow extends Command {
       case DRIVE_TO_REEF://driving to reef with camera front alignment
       //rotational speed calculation based on
       //double rot = (-targetpose[4])/200;//25 is the limit view, normal angle based direction finding
-      double rot = -tx/100;//target centering center pixel based rotation
+      double rot = (X_OFFSET-tx)/100;//target centering center pixel based rotation
       if (rot < ROT_DEADBAND && rot > -ROT_DEADBAND){
         rot = 0;
       }
       // x (forward) speed calculation based on size of target in camera view
-      double xSpeed = (SCORE_DISTANCE-ta)/(SCORE_DISTANCE*5)+0.05;//ta=SCORE_DISTANCE is the target (bigger is closer), 0.2 is the speed limit, xSpeed is forward/reverse
+      double xSpeed = (SCORE_DISTANCE-ta)/(SCORE_DISTANCE*5);//ta=SCORE_DISTANCE is the target (bigger is closer), 0.2 is the speed limit, xSpeed is forward/reverse
       if(xSpeed < XSPEED_DEADBAND && xSpeed>-XSPEED_DEADBAND){
         xSpeed = 0;
       }
@@ -119,9 +120,9 @@ public class targetFollow extends Command {
       else if (ySpeed<-0.05){ySpeed=-0.05;}//enforce lateral speed limit
       if (ta<SCORE_DISTANCE*0.5){ySpeed = 0;}//only move lateral if close to target
       //no target detected
-      if (!tv) {xSpeed = 0;rot = -0.1; ySpeed =0;}// what to do if no target is detected
+      if (!tv) {xSpeed = 0.05;rot = 0; ySpeed =0;}// what to do if no target is detected
       driveSubsystem.drive(xSpeed, ySpeed, rot, false);
-      if(Math.abs(tx)<1&&Math.abs(targetpose[4])<2&&Math.abs(ta)>SCORE_DISTANCE){
+      if(Math.abs(X_OFFSET-tx)<1&&Math.abs(targetpose[4])<5&&Math.abs(SCORE_DISTANCE-ta)<0.5){
         //check to switch steps
         step = FINAL_APPROACH;// switch to final movement
         timer = System.currentTimeMillis();
@@ -149,7 +150,7 @@ public class targetFollow extends Command {
       //move elevator to score level
       elevatorSubsystem.setTarget(9);
       
-      if(System.currentTimeMillis()>timer+1000){// 1000 ms forward drive time
+      if(System.currentTimeMillis()>timer+3000){// 2000 ms forward drive time
         step = SCORE;// switch to scoring
         timer = System.currentTimeMillis();
       }
