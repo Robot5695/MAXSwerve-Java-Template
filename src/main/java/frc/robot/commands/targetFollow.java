@@ -20,7 +20,7 @@ public class targetFollow extends Command {
   private final int SCORE_DISTANCE = 3;// limelight ta threshold for being "close enough" to score
   private final int LOAD_DISTANCE = 2; // distance in m to back up for load station from reef
   private final int LOAD_Y_OFFSET = 25;// lateral offset to back up to when loading
-  private final int X_OFFSET = 10;//x offset to score on coral
+  private final int X_OFFSET = 7;//x offset to score on coral
   private long timer;
 
   private final double ROT_DEADBAND = 0.01;
@@ -122,7 +122,7 @@ public class targetFollow extends Command {
       //no target detected
       if (!tv) {xSpeed = 0.05;rot = 0; ySpeed =0;}// what to do if no target is detected
       driveSubsystem.drive(xSpeed, ySpeed, rot, false);
-      if(Math.abs(X_OFFSET-tx)<1&&Math.abs(targetpose[4])<5&&Math.abs(SCORE_DISTANCE-ta)<0.5){
+      if(Math.abs(X_OFFSET-tx)<1&&Math.abs(targetpose[4])<8&&Math.abs(SCORE_DISTANCE-ta)<0.5){
         //check to switch steps
         step = FINAL_APPROACH;// switch to final movement
         timer = System.currentTimeMillis();

@@ -74,10 +74,10 @@ public class Elevator extends SubsystemBase {
   public void setTarget(double newTarget){
     if(newTarget>target){
       //moving up control
-      elevator1config.closedLoop.pid(0.5,0,0);//positive D could help "soften" upward approach to target
+      elevator1config.closedLoop.pid(0.4,0,0);//positive D could help "soften" upward approach to target
     }else if(newTarget<target){
       //moving down
-      elevator1config.closedLoop.pid(0.5,0,0);//positive D could help "soften" downward approach to target
+      elevator1config.closedLoop.pid(0.4,0,0);//positive D could help "soften" downward approach to target
     }
 
     target = newTarget;
