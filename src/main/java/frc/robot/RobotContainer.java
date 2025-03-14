@@ -71,7 +71,7 @@ public class RobotContainer {
     configureButtonBindings();
 
 
-    m_chooser.setDefaultOption("moveOnly", moveOnly());
+   // m_chooser.setDefaultOption("moveOnly", moveOnly());
     /*
      * Pipelines
      * center tags 10,21
@@ -85,7 +85,7 @@ public class RobotContainer {
      * 3: not defined on LL
      * 4: not defined on LL
      */
-    m_chooser.addOption ("Center", tagfollower(0));//use center pipeline
+    m_chooser.setDefaultOption ("Center", tagfollower(0));//use center pipeline
     m_chooser.addOption ("Right", tagfollower(1));//use inner corner pipeline
     m_chooser.addOption ("Left", tagfollower(1));//use inner corner pipeline
     SmartDashboard.putData(m_chooser);
@@ -240,6 +240,7 @@ m_driverController2.povRight().whileTrue(new RunCommand(()->m_Tilter.setTilterSp
 
   public Command tagfollower(int pipeline){
 LimelightHelpers.setPipelineIndex("limelight-front", pipeline);
+System.out.println("switched to pipeline "+pipeline);
     return new targetFollow(m_robotDrive,m_rollerSubsystem, m_Elevator);
   }
 }

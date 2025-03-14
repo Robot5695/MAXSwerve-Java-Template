@@ -40,7 +40,7 @@ public class Robot extends TimedRobot {
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
     camera1 = CameraServer.startAutomaticCapture(0);
-    //camera2 = CameraServer.startAutomaticCapture(1);
+    camera2 = CameraServer.startAutomaticCapture(1);
     lightstrip = new PWMSparkMax(0);
     gametimer = System.currentTimeMillis();
   }
