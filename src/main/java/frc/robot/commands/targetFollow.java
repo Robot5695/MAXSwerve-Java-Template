@@ -20,7 +20,7 @@ public class targetFollow extends Command {
   private final int SCORE_DISTANCE = 3;// limelight ta threshold for being "close enough" to score
   private final int LOAD_DISTANCE = 2; // distance in m to back up for load station from reef
   private final int LOAD_Y_OFFSET = 25;// lateral offset to back up to when loading
-  private final int X_OFFSET = 7;//x offset to score on coral
+  private final int X_OFFSET = 15;//x offset to score on coral
   private long timer;
 
   private final double ROT_DEADBAND = 0.01;
@@ -33,14 +33,15 @@ public class targetFollow extends Command {
   private final int MOVE_TO_LOAD = 3;//move from reef to loading station
   private final int WAIT_AT_LOAD = 4;//timed wait at loading station
   private final int DRIVE_OFF_START = 5;//move from start
-
+  private int pipeline;
   /** Creates a new targetFollow. */
-  public targetFollow(DriveSubsystem driveSubsystem, RollerSubsystem rollerSubsystem, Elevator elevatorSubsystem) {
+  public targetFollow(DriveSubsystem driveSubsystem, RollerSubsystem rollerSubsystem, Elevator elevatorSubsystem, int startingpipeline) {
     // Use addRequirements() here to declare subsystem dependencies.
 
     this.driveSubsystem = driveSubsystem;
     this.rollerSubsystem = rollerSubsystem;
     this.elevatorSubsystem = elevatorSubsystem;
+    pipeline = startingpipeline;
 
     addRequirements(driveSubsystem);
     addRequirements(rollerSubsystem);
@@ -58,7 +59,7 @@ public class targetFollow extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-
+LimelightHelpers.setPipelineIndex("limelight-front", pipeline);
     
 
     // this code section drives the robot to move toward an apriltag target
@@ -76,11 +77,11 @@ public class targetFollow extends Command {
     SmartDashboard.putNumber("tx", tx);
     SmartDashboard.putNumber("ta", ta);
     SmartDashboard.putBoolean("tv", tv);
-    SmartDashboard.putNumber("tid", tid);
+    /* SmartDashboard.putNumber("tid", tid);
     SmartDashboard.putNumber("targetpose0", targetpose[0]);
     SmartDashboard.putNumber("targetpose1", targetpose[1]);
     SmartDashboard.putNumber("targetpose2", targetpose[2]);
-    SmartDashboard.putNumber("targetpose3", targetpose[3]);
+    SmartDashboard.putNumber("targetpose3", targetpose[3]); */
     SmartDashboard.putNumber("Step",step);
     SmartDashboard.putNumber("target angle", targetpose[4]);
   
@@ -121,8 +122,9 @@ public class targetFollow extends Command {
       if (ta<SCORE_DISTANCE*0.5){ySpeed = 0;}//only move lateral if close to target
       //no target detected
       if (!tv) {xSpeed = 0.05;rot = 0; ySpeed =0;}// what to do if no target is detected
-      driveSubsystem.drive(xSpeed, ySpeed, rot, false);
-      if(Math.abs(X_OFFSET-tx)<1&&Math.abs(targetpose[4])<8&&Math.abs(SCORE_DISTANCE-ta)<0.5){
+      driveSubsystem.drive(xSpeed, 0, rot, false);
+      if(Math.abs(X_OFFSET-tx)<1&&Math.abs(SCORE_DISTANCE-ta)<0.5){
+        //&&Math.abs(targetpose[4])<8 //criteria for yaw control
         //check to switch steps
         step = FINAL_APPROACH;// switch to final movement
         timer = System.currentTimeMillis();
@@ -132,7 +134,7 @@ public class targetFollow extends Command {
 
       case SCORE://scoring coral
       //need to hold elevator height at score height
-      rollerSubsystem.runRoller(0, 0.7);
+      rollerSubsystem.runRoller(0, 1);
       driveSubsystem.drive(0, 0, 0, false);
       if(System.currentTimeMillis()>timer+1000){// roll for 1000 ms
         //step = MOVE_TO_LOAD;// load next coral
@@ -146,12 +148,21 @@ public class targetFollow extends Command {
       break;
 
       case FINAL_APPROACH://final movement to reef
-      driveSubsystem.drive(0.05, 0, 0, false);
+      driveSubsystem.drive(0.1, 0, 0, false);
       //move elevator to score level
-      elevatorSubsystem.setTarget(9);
+      if(LimelightHelpers.getCurrentPipelineIndex("limelight-front")==0){
+        elevatorSubsystem.setTarget(55);
+      //for center coral, goes upper level
+
+      } else{
+        elevatorSubsystem.setTarget(55);
+      //for side coral, lower level
+
+      }
       
       if(System.currentTimeMillis()>timer+3000){// 2000 ms forward drive time
-        step = SCORE;// switch to scoring
+        step = 99;// switch to scoring
+        
         timer = System.currentTimeMillis();
       }
       break;

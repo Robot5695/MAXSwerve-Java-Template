@@ -28,10 +28,11 @@ public class Elevator extends SubsystemBase {
   private final SparkMax elevator2;
   private final SparkMaxConfig elevator1config, elevator2config;
   private final RelativeEncoder elevatorEncoder;
-  private double target;
+  private double target;//the target of the elevator closed-loop control
   private final ProfiledPIDController m_controller;
   private final ElevatorFeedforward elevatorFeedforward;
-
+  private final double RAMPUP = 0.75;
+  private final double RAMPDOWN = 0.5;
   private final SparkClosedLoopController elevatorClosedLoopController;
 
   public Elevator() {
@@ -74,13 +75,22 @@ public class Elevator extends SubsystemBase {
   public void setTarget(double newTarget){
     if(newTarget>target){
       //moving up control
+     
+      target = target + RAMPUP;
+      if (target>newTarget){
+        target = newTarget;
+      }
       elevator1config.closedLoop.pid(0.4,0,0);//positive D could help "soften" upward approach to target
     }else if(newTarget<target){
+      target = target - RAMPDOWN;
+      if (target<newTarget){
+        target = newTarget;
+      }
       //moving down
       elevator1config.closedLoop.pid(0.4,0,0);//positive D could help "soften" downward approach to target
     }
 
-    target = newTarget;
+    
     //set low/high limits
     if (target<0){
       target = 0;

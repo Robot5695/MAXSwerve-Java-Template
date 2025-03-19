@@ -63,6 +63,8 @@ public class RobotContainer {
   CommandXboxController m_driverController2 = new CommandXboxController(OIConstants.kDriverControllerPort+1);
 
   SendableChooser<Command> m_chooser = new SendableChooser<>();
+  SendableChooser<Integer> m_pipeline = new SendableChooser<>();
+  int pipelineIndex;
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
@@ -89,6 +91,11 @@ public class RobotContainer {
     m_chooser.addOption ("Right", tagfollower(1));//use inner corner pipeline
     m_chooser.addOption ("Left", tagfollower(1));//use inner corner pipeline
     SmartDashboard.putData(m_chooser);
+m_pipeline.setDefaultOption("0-center", 0);
+m_pipeline.addOption("1-leftright",1);
+SmartDashboard.putData(m_pipeline);
+LimelightHelpers.setPipelineIndex("limelight-front", m_pipeline.getSelected());
+
     // Configure default commands
     m_robotDrive.setDefaultCommand(
         // The left stick controls translation of the robot.
@@ -241,6 +248,6 @@ m_driverController2.povRight().whileTrue(new RunCommand(()->m_Tilter.setTilterSp
   public Command tagfollower(int pipeline){
 LimelightHelpers.setPipelineIndex("limelight-front", pipeline);
 System.out.println("switched to pipeline "+pipeline);
-    return new targetFollow(m_robotDrive,m_rollerSubsystem, m_Elevator);
+    return new targetFollow(m_robotDrive,m_rollerSubsystem, m_Elevator, pipeline);
   }
 }
