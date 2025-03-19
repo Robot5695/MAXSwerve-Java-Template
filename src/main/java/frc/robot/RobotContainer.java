@@ -22,7 +22,7 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.Constants.RollerConstants;
 import frc.robot.subsystems.DriveSubsystem;
-import frc.robot.subsystems.Elevator;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -35,11 +35,9 @@ import java.util.List;
 import com.ctre.phoenix6.configs.PWM1Configs;
 
 import frc.robot.commands.AlignToReef;
-import frc.robot.commands.RollerCommand;
+
 import frc.robot.commands.targetFollow;
-import frc.robot.subsystems.RollerSubsystem;
-import frc.robot.subsystems.Tilter;
-import frc.robot.subsystems.Climber;
+
 
 /*
  * This class is where the bulk of the robot should be declared.  Since Command-based is a
@@ -50,10 +48,7 @@ import frc.robot.subsystems.Climber;
 public class RobotContainer {
   // The robot's subsystems
   private final DriveSubsystem m_robotDrive = new DriveSubsystem();
-  private final RollerSubsystem m_rollerSubsystem = new RollerSubsystem();
-  private final Elevator m_Elevator = new Elevator();
-  private final Tilter m_Tilter = new Tilter();
-  private final Climber m_Climber= new Climber();
+
 
 
 
@@ -107,30 +102,6 @@ LimelightHelpers.setPipelineIndex("limelight-front", m_pipeline.getSelected());
                 -MathUtil.applyDeadband(m_driverController.getRightX(), OIConstants.kDriveDeadband),
                 false),
             m_robotDrive)); 
-
-            //roller defaults to stopped, reverse is direction of coral feed
-    m_rollerSubsystem.setDefaultCommand(
-        new RollerCommand(
-          () -> 0.0,
-            () -> 0.0,
-           
-            m_rollerSubsystem));
-
-    
-    //elevator default logic
-    m_Elevator.setDefaultCommand(
-      new RunCommand(()->m_Elevator.setTarget(m_Elevator.getTarget()+(m_driverController.getLeftTriggerAxis()-m_driverController.getRightTriggerAxis())/2), m_Elevator)
-    );
-
-
-    //tilter default logic
-    m_Tilter.setDefaultCommand(
-      new RunCommand(()->m_Tilter.setTilterSpeed(0),m_Tilter)
-    );
-    //climber default logic
-    m_Climber.setDefaultCommand(
-      new RunCommand(()->m_Climber.setClimberSpeed(0),m_Climber)
-    );
     
   }
 
@@ -156,32 +127,7 @@ LimelightHelpers.setPipelineIndex("limelight-front", m_pipeline.getSelected());
     m_driverController.leftTrigger().onTrue(new AlignToReef(false, m_robotDrive).withTimeout(7));
     */
         
-    m_driverController2
-    .rightBumper()
-    .whileTrue(new RollerCommand(
-      () -> 0.0,
-        () -> 1.0,
-        m_rollerSubsystem));
 
-    m_driverController2
-    .leftBumper()
-    .whileTrue(new RollerCommand(
-      () -> 0.0,
-        () -> 0.5,
-        m_rollerSubsystem));
-   
-        //0 is bottom, 57 is absolute top
-m_driverController2.a().whileTrue(new RunCommand(()->m_Elevator.setTarget(0), m_Elevator));
-m_driverController2.b().whileTrue(new RunCommand(()->m_Elevator.setTarget(9),m_Elevator));
-m_driverController2.x().whileTrue(new RunCommand(()->m_Elevator.setTarget(26), m_Elevator));
-m_driverController2.y().whileTrue(new RunCommand(()->m_Elevator.setTarget(52), m_Elevator));
-
-
-m_driverController2.povLeft().whileTrue(new RunCommand(()->m_Tilter.setTilterSpeed(0.5),m_Tilter));
-m_driverController2.povRight().whileTrue(new RunCommand(()->m_Tilter.setTilterSpeed(-0.5),m_Tilter));
-
-        m_driverController2.leftStick().whileTrue(new RunCommand(()->m_Climber.setClimberSpeed(-1), m_Climber));
-        m_driverController2.rightStick().whileTrue(new RunCommand(()->m_Climber.setClimberSpeed(1), m_Climber));
         /* bumper based elevator control
         m_driverController
         .rightBumper()
@@ -248,6 +194,6 @@ m_driverController2.povRight().whileTrue(new RunCommand(()->m_Tilter.setTilterSp
   public Command tagfollower(int pipeline){
 LimelightHelpers.setPipelineIndex("limelight-front", pipeline);
 System.out.println("switched to pipeline "+pipeline);
-    return new targetFollow(m_robotDrive,m_rollerSubsystem, m_Elevator, pipeline);
+    return new targetFollow(m_robotDrive, pipeline);
   }
 }

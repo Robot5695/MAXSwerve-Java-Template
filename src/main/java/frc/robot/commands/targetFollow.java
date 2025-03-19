@@ -8,14 +8,12 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.LimelightHelpers;
 import frc.robot.subsystems.DriveSubsystem;
-import frc.robot.subsystems.Elevator;
-import frc.robot.subsystems.RollerSubsystem;
+
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class targetFollow extends Command {
   private final DriveSubsystem driveSubsystem;
-  private final RollerSubsystem rollerSubsystem;
-  private final Elevator elevatorSubsystem;
+
   private int step;
   private final int SCORE_DISTANCE = 3;// limelight ta threshold for being "close enough" to score
   private final int LOAD_DISTANCE = 2; // distance in m to back up for load station from reef
@@ -35,17 +33,15 @@ public class targetFollow extends Command {
   private final int DRIVE_OFF_START = 5;//move from start
   private int pipeline;
   /** Creates a new targetFollow. */
-  public targetFollow(DriveSubsystem driveSubsystem, RollerSubsystem rollerSubsystem, Elevator elevatorSubsystem, int startingpipeline) {
+  public targetFollow(DriveSubsystem driveSubsystem, int startingpipeline) {
     // Use addRequirements() here to declare subsystem dependencies.
 
     this.driveSubsystem = driveSubsystem;
-    this.rollerSubsystem = rollerSubsystem;
-    this.elevatorSubsystem = elevatorSubsystem;
+    
     pipeline = startingpipeline;
 
     addRequirements(driveSubsystem);
-    addRequirements(rollerSubsystem);
-    addRequirements(elevatorSubsystem);
+    
   }
 
   // Called when the command is initially scheduled.
@@ -91,7 +87,7 @@ LimelightHelpers.setPipelineIndex("limelight-front", pipeline);
     switch(step){
       case DRIVE_OFF_START:
       driveSubsystem.drive(0.2, 0, 0, false);
-      elevatorSubsystem.setTarget(0);
+      
       if(System.currentTimeMillis()>timer+4000){
         step = DRIVE_TO_REEF;
         timer = System.currentTimeMillis();
@@ -134,13 +130,12 @@ LimelightHelpers.setPipelineIndex("limelight-front", pipeline);
 
       case SCORE://scoring coral
       //need to hold elevator height at score height
-      rollerSubsystem.runRoller(0, 1);
+      
       driveSubsystem.drive(0, 0, 0, false);
       if(System.currentTimeMillis()>timer+1000){// roll for 1000 ms
         //step = MOVE_TO_LOAD;// load next coral
         step = 99;//do nothing
-        rollerSubsystem.runRoller(0, 0);
-        elevatorSubsystem.setTarget(0);
+        
         System.out.println("score done");
         timer = System.currentTimeMillis();
         break;
@@ -151,11 +146,11 @@ LimelightHelpers.setPipelineIndex("limelight-front", pipeline);
       driveSubsystem.drive(0.1, 0, 0, false);
       //move elevator to score level
       if(LimelightHelpers.getCurrentPipelineIndex("limelight-front")==0){
-        elevatorSubsystem.setTarget(55);
+        
       //for center coral, goes upper level
 
       } else{
-        elevatorSubsystem.setTarget(55);
+        
       //for side coral, lower level
 
       }
@@ -201,7 +196,7 @@ LimelightHelpers.setPipelineIndex("limelight-front", pipeline);
       case WAIT_AT_LOAD:
       System.out.println("wait at load started");
       driveSubsystem.drive(0,0,0, false);
-      rollerSubsystem.runRoller(0, 0);
+      
       if(System.currentTimeMillis()>timer+3000){// 1000 ms forward drive time
         step = DRIVE_TO_REEF;// switch to scoring
         timer = System.currentTimeMillis();
@@ -220,7 +215,7 @@ LimelightHelpers.setPipelineIndex("limelight-front", pipeline);
   public void end(boolean interrupted) {
 
     driveSubsystem.drive(0,0,0, false);
-    rollerSubsystem.runRoller(0, 0);
+    
   }
 
   // Returns true when the command should end.
