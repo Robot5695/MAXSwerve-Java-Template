@@ -107,7 +107,13 @@ public class targetFollow extends Command {
       case DRIVE_TO_REEF://driving to reef with camera front alignment
       //rotational speed calculation based on
       //double rot = (-targetpose[4])/200;//25 is the limit view, normal angle based direction finding
-      double rot = (X_OFFSET-tx)/100;//target centering center pixel based rotation
+      double rot = 0;
+      if(piecesScored>1){
+         rot = (-X_OFFSET-tx)/100;//target centering center pixel based rotation
+      }else{
+         rot = (X_OFFSET-tx)/100;//target centering center pixel based rotation
+      }
+      
       if (rot < ROT_DEADBAND && rot > -ROT_DEADBAND){
         rot = 0;
       }
@@ -142,10 +148,11 @@ public class targetFollow extends Command {
       //need to hold elevator height at score height
       rollerSubsystem.runRoller(0, 0.5);
       driveSubsystem.drive(0, 0, 0, false);
-      piecesScored++;
+      
       if(System.currentTimeMillis()>timer+1000){// roll for 1000 ms
         //step = MOVE_TO_LOAD;// load next coral
         step = ROTATE_TO_LOAD;//do nothing
+        piecesScored++;
         rollerSubsystem.runRoller(0, 0);
         elevatorSubsystem.setTarget(0);
         System.out.println("score done");
