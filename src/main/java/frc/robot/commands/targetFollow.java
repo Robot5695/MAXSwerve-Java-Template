@@ -17,10 +17,10 @@ public class targetFollow extends Command {
   private final RollerSubsystem rollerSubsystem;
   private final Elevator elevatorSubsystem;
   private int step;
-  private final int SCORE_DISTANCE = 3;// limelight ta threshold for being "close enough" to score
-  private final int LOAD_DISTANCE = 2; // distance in m to back up for load station from reef
+  private final double SCORE_DISTANCE = 3;// limelight ta threshold for being "close enough" to score
+  private final double LOAD_DISTANCE = 3; // distance in m to back up for load station from reef
   private final int LOAD_Y_OFFSET = 25;// lateral offset to back up to when loading
-  private final int X_OFFSET = 15;//x offset to score on coral
+  private final int X_OFFSET = 17;//x offset to score on coral
   private long timer;
 
   private final double ROT_DEADBAND = 0.01;
@@ -33,6 +33,9 @@ public class targetFollow extends Command {
   private final int MOVE_TO_LOAD = 3;//move from reef to loading station
   private final int WAIT_AT_LOAD = 4;//timed wait at loading station
   private final int DRIVE_OFF_START = 5;//move from start
+  private final int ROTATE_TO_LOAD = 6;//back off reef, lower elevator, rotate to load
+
+  private int piecesScored;//number of pieces scored
   private int pipeline;
   /** Creates a new targetFollow. */
   public targetFollow(DriveSubsystem driveSubsystem, RollerSubsystem rollerSubsystem, Elevator elevatorSubsystem, int startingpipeline) {
@@ -54,12 +57,14 @@ public class targetFollow extends Command {
     System.out.println("targetFollow cmd started");
     step = DRIVE_TO_REEF;// steps in the program, starting at this step
     timer = System.currentTimeMillis();
+    LimelightHelpers.setPipelineIndex("limelight-front", pipeline);
+    piecesScored=0;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-LimelightHelpers.setPipelineIndex("limelight-front", pipeline);
+
     
 
     // this code section drives the robot to move toward an apriltag target
@@ -69,21 +74,22 @@ LimelightHelpers.setPipelineIndex("limelight-front", pipeline);
     double tid = LimelightHelpers.getFiducialID("limelight-front");
     double[] targetpose =LimelightHelpers.getTargetPose_CameraSpace("limelight-front");//returns array of xyz adn pitch/roll/yaw position of target relative to robot
     
+    LimelightHelpers.setPipelineIndex("limelight-rear", 3);//pipeline 3 is loading tags
     double load_tx = LimelightHelpers.getTX("limelight-rear");
     double load_ta = LimelightHelpers.getTA("limelight-rear");
     boolean load_tv = LimelightHelpers.getTV("limelight-rear");
     double[] load_targetpose = LimelightHelpers.getTargetPose_CameraSpace("limelight-rear");
 
-    SmartDashboard.putNumber("tx", tx);
-    SmartDashboard.putNumber("ta", ta);
-    SmartDashboard.putBoolean("tv", tv);
+    //SmartDashboard.putNumber("tx", tx);
+    //SmartDashboard.putNumber("ta", ta);
+    //SmartDashboard.putBoolean("tv", tv);
     /* SmartDashboard.putNumber("tid", tid);
     SmartDashboard.putNumber("targetpose0", targetpose[0]);
     SmartDashboard.putNumber("targetpose1", targetpose[1]);
     SmartDashboard.putNumber("targetpose2", targetpose[2]);
     SmartDashboard.putNumber("targetpose3", targetpose[3]); */
     SmartDashboard.putNumber("Step",step);
-    SmartDashboard.putNumber("target angle", targetpose[4]);
+    //SmartDashboard.putNumber("target angle", targetpose[4]);
   
     SmartDashboard.updateValues();
   
@@ -134,11 +140,12 @@ LimelightHelpers.setPipelineIndex("limelight-front", pipeline);
 
       case SCORE://scoring coral
       //need to hold elevator height at score height
-      rollerSubsystem.runRoller(0, 1);
+      rollerSubsystem.runRoller(0, 0.5);
       driveSubsystem.drive(0, 0, 0, false);
+      piecesScored++;
       if(System.currentTimeMillis()>timer+1000){// roll for 1000 ms
         //step = MOVE_TO_LOAD;// load next coral
-        step = 99;//do nothing
+        step = ROTATE_TO_LOAD;//do nothing
         rollerSubsystem.runRoller(0, 0);
         elevatorSubsystem.setTarget(0);
         System.out.println("score done");
@@ -161,24 +168,40 @@ LimelightHelpers.setPipelineIndex("limelight-front", pipeline);
       }
       
       if(System.currentTimeMillis()>timer+3000){// 2000 ms forward drive time
-        step = 99;// switch to scoring
+        step = SCORE;// switch to scoring
         
         timer = System.currentTimeMillis();
       }
       break;
 
+      case ROTATE_TO_LOAD:
+      elevatorSubsystem.setTarget(0);
+      driveSubsystem.drive(-0.1, 0, 0.3, false);
+      if(System.currentTimeMillis()>timer+1000){
+        step=MOVE_TO_LOAD;
+        timer=System.currentTimeMillis();
+        LimelightHelpers.setPipelineIndex("limelight-rear", 3);//pipeline 3 is loading tags
+      }
+      break;
+
       case MOVE_TO_LOAD:
       LimelightHelpers.setPipelineIndex("limelight-front", 2);//pipeline 2 is outer corner tags
+      elevatorSubsystem.setTarget(0);
       //System.out.println("move 2 load started");
-      //rot = -tx/100;//25 is the limit view
-      rot = -targetpose[4]/100;// align robot angle with normal vector of april tag
+      rot = -load_tx/100;//25 is the limit view
+      //rot = -targetpose[4]/100;// align robot angle with normal vector of april tag
       if(rot <ROT_DEADBAND&&rot>-ROT_DEADBAND){rot = 0;}//rotation deadband to avoid twitching?
-      xSpeed = (targetpose[2]-LOAD_DISTANCE)/(LOAD_DISTANCE*5)-0.01;//ta=SCORE_DISTANCE is the target (bigger is closer), 0.2 is the speed limit, xSpeed is forward/reverse
-      if(xSpeed<XSPEED_DEADBAND&&xSpeed>-XSPEED_DEADBAND){
-        xSpeed = 0;
+
+      xSpeed = (LOAD_DISTANCE-load_ta)/(LOAD_DISTANCE);//ta=SCORE_DISTANCE is the target (bigger is closer), 0.2 is the speed limit, xSpeed is forward/reverse
+      SmartDashboard.putNumber("xspeed", xSpeed);
+      SmartDashboard.putNumber("load_ta", load_ta);
+      if(xSpeed>0.2){
+        xSpeed=0.2;//set maximum speed moving toward load
+      }else if (xSpeed<-0.2){
+        xSpeed=-0.2;
       }
-      if (xSpeed>0) {xSpeed=0;}// don't move forward when going to load
-      else if (xSpeed<-0.2) {xSpeed=-0.2;}//limit backward speed to -0.2
+     
+
       //ySpeed = targetpose[4]/300;//- move right
       ySpeed = (LOAD_Y_OFFSET-tx)/LOAD_Y_OFFSET;//offset the robot to one side
       if(ySpeed <YSPEED_DEADBAND && ySpeed >-YSPEED_DEADBAND){ySpeed=0;}//lateral deadband to avoid twitching
@@ -187,10 +210,10 @@ LimelightHelpers.setPipelineIndex("limelight-front", pipeline);
       if (ta<LOAD_DISTANCE/2){ySpeed = 0;}//only move lateral if close to target
 
       //no target detected code
-      if (!tv) {xSpeed = -0.1;rot = 0; ySpeed =0;}// what to do if no target is detected, NECESSARY for initial move off wall
+      if (!load_tv) {xSpeed = 0.1;rot = 0; ySpeed =0;}// what to do if no target is detected, NECESSARY for initial move off wall
       
-      driveSubsystem.drive(xSpeed, ySpeed, rot, false);
-      if(Math.abs(tx)>(LOAD_Y_OFFSET-2)&&Math.abs(targetpose[4])<2&&Math.abs(targetpose[2])>=LOAD_DISTANCE&&tv||(System.currentTimeMillis()>timer+4000)){//need validity check tv
+      driveSubsystem.drive(-xSpeed, 0, rot, false);
+      if(Math.abs(load_tx)<0.5&&Math.abs(LOAD_DISTANCE-load_ta)<0.5){//need validity check tv
         //check to switch steps
         step = WAIT_AT_LOAD;// switch to final movement
         timer = System.currentTimeMillis();
@@ -200,11 +223,13 @@ LimelightHelpers.setPipelineIndex("limelight-front", pipeline);
 
       case WAIT_AT_LOAD:
       System.out.println("wait at load started");
-      driveSubsystem.drive(0,0,0, false);
-      rollerSubsystem.runRoller(0, 0);
+      elevatorSubsystem.setTarget(0);
+      driveSubsystem.drive(-0.1,0,0, false);
+      rollerSubsystem.runRoller(0, 0.2);
       if(System.currentTimeMillis()>timer+3000){// 1000 ms forward drive time
         step = DRIVE_TO_REEF;// switch to scoring
         timer = System.currentTimeMillis();
+        rollerSubsystem.runRoller(0, 0);
       }
       break;
 
