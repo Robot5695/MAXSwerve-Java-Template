@@ -176,7 +176,12 @@ public class targetFollow extends Command {
 
       case ROTATE_TO_LOAD:
       elevatorSubsystem.setTarget(0);
-      driveSubsystem.drive(-0.1, 0, 0.3, false);
+      if(piecesScored>1){
+        driveSubsystem.drive(-0.1, 0, 0, false);
+      }else{
+        driveSubsystem.drive(-0.1, 0, 0.3, false);
+      }
+      
       if(System.currentTimeMillis()>timer+1000){
         step=MOVE_TO_LOAD;
         timer=System.currentTimeMillis();
