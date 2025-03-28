@@ -24,7 +24,7 @@ public class targetFollow extends Command {
   private long timer;//step timer
   private long autotimer;//overall auto timer
   //constants controlling speed and time in auto
-  private final double MAX_FORWARD_SPD = 1.0;//max speed moving toward reef and load, tested value 0.15 (working), tested 0.3 (almost)
+  private final double MAX_FORWARD_SPD = 0.3;//max speed moving toward reef and load, tested value 0.15 (working), tested 0.3 (almost)
   private final int FINAL_APPROACH_DWELL = 2000;//ms for final approach
   private final int WAIT_AT_LOAD_DWELL = 2000;//ms for waiting at load
   private final int MOVE_TO_LOAD_TIMEOUT = 3000;//ms for exiting move to load
@@ -143,10 +143,11 @@ public class targetFollow extends Command {
       //rotational speed calculation based on
       //double rot = (-targetpose[4])/200;//25 is the limit view, normal angle based direction finding
       double rot = 0;
-      if(piecesScored>1){
-         rot = (-X_OFFSET-tx)/100;//target centering center pixel based rotation
+      //if the robot has scored multiple pieces OR is coming from the left, use the right position
+      if(piecesScored>1 || position ==0){
+         rot = (-X_OFFSET-tx)/100;//target centering center pixel based rotation - right pole
       }else{
-         rot = (X_OFFSET-tx)/100;//target centering center pixel based rotation
+         rot = (X_OFFSET-tx)/100;//target centering center pixel based rotation - left pole
       }
       
       if (rot < ROT_DEADBAND && rot > -ROT_DEADBAND){
