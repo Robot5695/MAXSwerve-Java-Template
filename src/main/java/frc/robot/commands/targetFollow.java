@@ -24,11 +24,13 @@ public class targetFollow extends Command {
   private long timer;//step timer
   private long autotimer;//overall auto timer
   //constants controlling speed and time in auto
-  private final double MAX_FORWARD_SPD = 0.3;//max speed moving toward reef and load, tested value 0.15 (working), tested 0.3 (almost)
+  private final double MAX_FORWARD_SPD = 0.2;//max speed moving toward reef and load, tested value 0.15 (working), tested 0.3 (almost)
   private final int FINAL_APPROACH_DWELL = 2000;//ms for final approach
   private final int WAIT_AT_LOAD_DWELL = 2000;//ms for waiting at load
-  private final int MOVE_TO_LOAD_TIMEOUT = 3000;//ms for exiting move to load
+  private final int MOVE_TO_LOAD_TIMEOUT = 5000;//ms for exiting move to load
   private final int DRIVE_TO_REEF_TIMEOUT = 4000;//ms for exiting move to reef
+
+  private final int SCORE_HEIGHT = 54;//elevator score height for reef
 
   private final double ROT_DEADBAND = 0.01;
   private final double XSPEED_DEADBAND = 0.01;
@@ -209,11 +211,11 @@ step = 99;//no further steps
       driveSubsystem.drive(0.15, 0, 0, false);
       //move elevator to score level
       if(LimelightHelpers.getCurrentPipelineIndex("limelight-front")==0){
-        elevatorSubsystem.setTarget(55);
+        elevatorSubsystem.setTarget(SCORE_HEIGHT);
       //for center coral, goes upper level
 
       } else{
-        elevatorSubsystem.setTarget(55);
+        elevatorSubsystem.setTarget(SCORE_HEIGHT);
       //for side coral, lower level
 
       }
