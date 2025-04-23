@@ -91,6 +91,8 @@ public class RobotContainer {
     m_chooser.setDefaultOption ("Center", tagfollower(1));//use center pipeline
     m_chooser.addOption ("Right", tagfollower(2));//use inner corner pipeline
     m_chooser.addOption ("Left", tagfollower(0));//use inner corner pipeline
+    m_chooser.addOption ("VisionDemo", tagfollower(3));//vision demo
+
     SmartDashboard.putData(m_chooser);
 m_pipeline.setDefaultOption("0-center", 0);
 m_pipeline.addOption("1-leftright",1);

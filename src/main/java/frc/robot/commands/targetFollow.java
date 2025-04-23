@@ -55,7 +55,7 @@ public class targetFollow extends Command {
     this.driveSubsystem = driveSubsystem;
     this.rollerSubsystem = rollerSubsystem;
     this.elevatorSubsystem = elevatorSubsystem;
-    this.position = startingposition;//tagfollower position 0 - left, 1 - center, 2 - right
+    this.position = startingposition;//tagfollower position 0 - left, 1 - center, 2 - right, 3 - demo
 
     /*
      * Pipelines
@@ -75,6 +75,8 @@ public class targetFollow extends Command {
       //center
       pipeline = 0;
 
+    }else if (startingposition==3){
+pipeline=3;//demo pipeline
     }else{
       //left or right
       pipeline = 1;
@@ -173,12 +175,27 @@ public class targetFollow extends Command {
       if (ta<SCORE_DISTANCE*0.5){ySpeed = 0;}//only move lateral if close to target
       //no target detected
       //tested default speed 0.05
-      if (!tv) {xSpeed = 0.1;rot = 0; ySpeed =0;}// what to do if no target is detected
+      if (!tv) {
+        if (pipeline!=3){
+          rot = 0;
+          xSpeed = 0.1;
+        }else{
+          rot = 0.1;
+          xSpeed = 0;//demo program
+        }
+        
+         
+
+        ySpeed =0;}// what to do if no target is detected
+
       driveSubsystem.drive(xSpeed, 0, rot, false);
       if(Math.abs(X_OFFSET-tx)<1&&Math.abs(SCORE_DISTANCE-ta)<0.5||System.currentTimeMillis()>timer+DRIVE_TO_REEF_TIMEOUT){
         //&&Math.abs(targetpose[4])<8 //criteria for yaw control
         //check to switch steps
-        step = FINAL_APPROACH;// switch to final movement
+        
+        if(pipeline!=3){
+          step = FINAL_APPROACH;// switch to final movement
+        }
         timer = System.currentTimeMillis();
         break;
       }
