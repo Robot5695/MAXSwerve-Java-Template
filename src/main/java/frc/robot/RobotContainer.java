@@ -87,9 +87,12 @@ public class RobotContainer {
      * 3: not defined on LL
      * 4: not defined on LL
      */
-    m_chooser.setDefaultOption ("Center", tagfollower(0));//use center pipeline
-    m_chooser.addOption ("Right", tagfollower(1));//use inner corner pipeline
-    m_chooser.addOption ("Left", tagfollower(1));//use inner corner pipeline
+    //tagfollower position 0 - left, 1 - centter, 2 - right
+    m_chooser.setDefaultOption ("Center", tagfollower(1));//use center pipeline
+    m_chooser.addOption ("Right", tagfollower(2));//use inner corner pipeline
+    m_chooser.addOption ("Left", tagfollower(0));//use inner corner pipeline
+    m_chooser.addOption ("VisionDemo", tagfollower(3));//vision demo
+
     SmartDashboard.putData(m_chooser);
 m_pipeline.setDefaultOption("0-center", 0);
 m_pipeline.addOption("1-leftright",1);
@@ -244,10 +247,11 @@ m_driverController2.povRight().whileTrue(new RunCommand(()->m_Tilter.setTilterSp
     return swerveControllerCommand.andThen(() -> m_robotDrive.drive(0, 0, 0, false));
   }
 
-
-  public Command tagfollower(int pipeline){
-LimelightHelpers.setPipelineIndex("limelight-front", pipeline);
-System.out.println("switched to pipeline "+pipeline);
-    return new targetFollow(m_robotDrive,m_rollerSubsystem, m_Elevator, pipeline);
+//position 0 - left, 1 - centter, 2 - right
+  public Command tagfollower(int position){
+  
+//LimelightHelpers.setPipelineIndex("limelight-front", position);
+//System.out.println("switched to pipeline "+position);
+    return new targetFollow(m_robotDrive,m_rollerSubsystem, m_Elevator, position);
   }
 }
